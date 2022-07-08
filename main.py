@@ -60,6 +60,8 @@ def main():
                 x = pos[0] // SQ_SIZE
                 y = pos[1] // SQ_SIZE
 
+                print(x, y)
+
                 if square_selected == (x, y):  # If the square is already selected, unselect it
                     square_selected = ()
                     player_clicks = []
@@ -69,7 +71,6 @@ def main():
 
                 if len(player_clicks) == 2:
                     move = board.Move(player_clicks[0], player_clicks[1], gs.board)
-                    print(move.get_chess_notation(), end=' ')
                     gs.make_move(move)
                     player_clicks = []
                     square_selected = ()

@@ -1,4 +1,5 @@
 import defs
+import moves
 from Piece import King, Queen, Bishop, Knight, Rook, Pawn, WhiteSpace
 
 
@@ -61,11 +62,9 @@ class GameState:
         elif self.board[move.end_row][move.end_col].color == self.board[move.start_row][move.start_col].color:
             return
         else:
-            self.board[move.start_row][move.start_col] = WhiteSpace.WhiteSpace(move.start_col, move.start_row)
-            self.board[move.end_row][move.end_col] = move.piece_moved
-            move.piece_moved.set_moved(True)
-            self.move_log.append(move)
-            self.white_to_move = not self.white_to_move
+            print(move.start_row, move.start_col, move.end_row, move.end_col)
+            print(self.board[move.start_row][move.start_col].color, self.board[move.end_row][move.end_col].color)
+            print(moves.legal_moves(self.board[move.start_row][move.start_col]))
 
 
 class Move:

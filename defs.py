@@ -1,4 +1,4 @@
-initial_board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w"
+initial_board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 
 def to_matrix(lst, number):
@@ -7,6 +7,10 @@ def to_matrix(lst, number):
 
 def pos_to_index(pos):
     return pos[0] * 8 + pos[1]
+
+
+def index_to_pos(index):
+    return [index // 8, index % 8]
 
 
 def binary_search(lst, target):
