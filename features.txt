@@ -1,0 +1,11 @@
+To develop:
+1. Piece highlighting on selection
+
+
+v0.2.0-alpha
+1. Move rules defined, capturing is now possible
+
+v0.1.0-alpha
+1. Board
+2. Moving functionality, no rules
+3. Capturing functionality

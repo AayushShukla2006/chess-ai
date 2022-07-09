@@ -13,15 +13,17 @@ def index_to_pos(index):
     return [index // 8, index % 8]
 
 
-def binary_search(lst, target):
+def binary_search(lst, element):
     low = 0
     high = len(lst) - 1
+
     while low <= high:
         mid = (low + high) // 2
-        if lst[mid] == target:
+        if lst[mid] == element:
             return mid
-        elif lst[mid] < target:
+        elif lst[mid] < element:
             low = mid + 1
         else:
             high = mid - 1
+
     return -1
