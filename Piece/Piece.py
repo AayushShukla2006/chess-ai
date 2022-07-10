@@ -1,3 +1,6 @@
+# This is a Piece class. Every piece inherits from this class.
+# Every piece is initialized with a Rank, File and Color. There are getters and setters for every defined value, and a defined method to print all information in a structural manner.
+
 class Piece:
     def __init__(self, rank, file, color):
         self.rank = rank
@@ -28,3 +31,9 @@ class Piece:
 
     def set_moved(self, moved):
         self.moved = moved
+
+    def print_info(self):
+        print("Rank of the piece is: " + str(self.rank))
+        print("File of the piece is: " + str(self.file))
+        print("Color of the piece is: " + str(self.color))
+        print(f"Has the piece moved? {'Yes' if self.moved else 'No'}")

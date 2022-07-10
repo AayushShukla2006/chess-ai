@@ -1,5 +1,10 @@
 To develop:
 1. Piece highlighting on selection
+2. Implement a check function
+(Not important, but to fix the slight white lines on side of window)
+
+Bug:
+1. Program crash on Pawn reaching end of board, Fix OutOfBounds for rank and file in moves.py
 
 
 v0.2.0-alpha

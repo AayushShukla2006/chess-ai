@@ -1,18 +1,13 @@
+import sys
 import pygame
 import board
+import moves
+from defs import IMAGES, DIMENSION, SQ_SIZE, WIDTH, HEIGHT, MAX_FPS, colors, highlight_colors, board_colors, original_colors, legal_move_colors
 from Piece import WhiteSpace
-
-# Some pre-defined constants.
-WIDTH = HEIGHT = 400
-DIMENSION = 8
-SQ_SIZE = HEIGHT // DIMENSION
-MAX_FPS = 30
-IMAGES = {}
 
 
 # This function loads the images to the app on runtime.
 def load_images():
-    global IMAGES
     pieces = ['wp', 'wR', 'wN', 'wB', 'wQ', 'wK', 'bp', 'bR', 'bN', 'bB', 'bQ', 'bK']
     for piece in pieces:
         IMAGES[piece] = pygame.image.load('Images/' + piece + '.png')
@@ -21,12 +16,15 @@ def load_images():
 
 # This function draws the squares on the board.
 def draw_squares(screen):
-    colors = [(238, 238, 210), (118, 150, 86)]
-
     for i in range(DIMENSION):
         for j in range(DIMENSION):
-            color = colors[(i + j) % 2]
-            pygame.draw.rect(screen, color, (j * SQ_SIZE, i * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+            pygame.draw.rect(screen, board_colors[i][j], (j * SQ_SIZE, i * SQ_SIZE, SQ_SIZE, SQ_SIZE))
+
+
+def reset_colors():
+    for i in range(DIMENSION):
+        for j in range(DIMENSION):
+            board_colors[i][j] = original_colors[i][j]
 
 
 # This function draws the pieces on the board depending on the board argument passed.
@@ -51,6 +49,7 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     screen.fill((255, 255, 255))
     clock = pygame.time.Clock()
+    undo = False
 
     # Load the images and values to the app.
     gs = board.GameState()
@@ -69,7 +68,7 @@ def main():
                 pos = pygame.mouse.get_pos()  # (x, y) location of mouse click
 
                 # Chess Definitions:
-                # Rank: The horizontal grid of squares is called the rank. The first rank is the bottom rank. Here in the program, the y-position of the mouse click is the rank.
+                # Rank: The horizontal grid of squares is called the rank. The first rank is the bottommost rank. Here in the program, the y-position of the mouse click is the rank.
                 # File: The vertical grid of squares is called the file. The first file is the leftmost file. Here in the program, the x-position of the mouse click is the file.
 
                 file = pos[0] // SQ_SIZE
@@ -78,21 +77,87 @@ def main():
                 if square_selected == (rank, file):  # If the square is already selected, unselect it
                     square_selected = ()
                     player_clicks = []
+                    reset_colors()
                 elif len(player_clicks) == 0:
                     if isinstance(gs.board[rank][file], WhiteSpace.WhiteSpace):  # If the selected square is empty, do not select it.
                         square_selected = ()
                         player_clicks = []
+                        reset_colors()
                     else:
                         player_clicks.append((rank, file))
+                        if (rank + file) % 2 == 0:
+                            board_colors[rank][file] = highlight_colors[0]
+                        else:
+                            board_colors[rank][file] = highlight_colors[1]
+                        if gs.board[rank][file].get_color() == gs.active_player():
+                            for i in moves.legal_moves(gs.board[rank][file], gs.board):
+                                if (i[0] + i[1]) % 2 == 0:
+                                    board_colors[i[0]][i[1]] = legal_move_colors[0]
+                                else:
+                                    board_colors[i[0]][i[1]] = legal_move_colors[1]
+
                 else:
                     square_selected = (rank, file)
                     player_clicks.append(square_selected)
+                    if gs.board[rank][file].get_color() == gs.active_player():
+                        for i in moves.legal_moves(gs.board[rank][file], gs.board):
+                            if (i[0] + i[1]) % 2 == 0:
+                                board_colors[i[0]][i[1]] = legal_move_colors[0]
+                            else:
+                                board_colors[i[0]][i[1]] = legal_move_colors[1]
+                    else:
+                        reset_colors()
 
                 if len(player_clicks) == 2:  # If the user clicked on two distinct squares, check its validity and move the piece.
                     move = board.Move(player_clicks[0], player_clicks[1], gs.board)
-                    gs.make_move(move)
-                    player_clicks = []
+                    valid = gs.make_move(move)
+
+                    initial_rank = player_clicks[0][0]
+                    initial_file = player_clicks[0][1]
+                    final_rank = player_clicks[1][0]
+                    final_file = player_clicks[1][1]
+
+                    # This is a quality-of-life feature to allow the user to move another piece if he/she had mistakenly selected a wrong piece.
+                    # The move will be reset when user clicks on a friendly piece, and the square on which he clicks will be treated as the first square.
+                    if valid:
+                        player_clicks = []
+                        square_selected = ()
+                        reset_colors()
+                    else:
+                        player_clicks = [square_selected]
+                        reset_colors()
+                        if (initial_rank + initial_file) % 2 == 0:
+                            board_colors[initial_rank][initial_file] = colors[0]
+                        else:
+                            board_colors[initial_rank][initial_file] = colors[1]
+                        if gs.board[final_rank][final_file].get_alpha() != '--':
+                            if (final_rank + final_file) % 2 == 0:
+                                board_colors[final_rank][final_file] = highlight_colors[0]
+                            else:
+                                board_colors[final_rank][final_file] = highlight_colors[1]
+                            if gs.board[final_rank][final_file].get_color() == gs.active_player():
+                                for i in moves.legal_moves(gs.board[final_rank][final_file], gs.board):
+                                    if (i[0] + i[1]) % 2 == 0:
+                                        board_colors[i[0]][i[1]] = legal_move_colors[0]
+                                    else:
+                                        board_colors[i[0]][i[1]] = legal_move_colors[1]
+                            else:
+                                reset_colors()
+                        else:
+                            if (final_rank + final_file) % 2 == 0:
+                                board_colors[final_rank][final_file] = colors[0]
+                            else:
+                                board_colors[final_rank][final_file] = colors[1]
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_z:
+                    gs.undo_move()
                     square_selected = ()
+                    player_clicks = []
+                    undo = True
+
+        if undo:
+            reset_colors()
+            undo = False
 
         draw_game_state(screen, gs)
         pygame.display.update()
@@ -101,3 +166,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    pygame.quit()
+    sys.exit()

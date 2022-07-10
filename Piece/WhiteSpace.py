@@ -8,3 +8,7 @@ class WhiteSpace(Piece.Piece):
     @staticmethod
     def get_alpha():
         return "--"
+
+    def print_info(self):
+        super().print_info()
+        print("Current square is a white space")

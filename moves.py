@@ -93,25 +93,31 @@ def pawn_moves(rank, file, m_arg_board):
     moves = []
 
     if m_arg_board[rank][file].get_color() == "white":
-        for i in range(rank - 1, rank - 3, -1):
-            if isinstance(m_arg_board[i][file], WhiteSpace.WhiteSpace):
-                moves.append((i, file))
-            else:
-                break
-        if m_arg_board[rank - 1][file - 1].get_color() == "black":
-            moves.append((rank - 1, file - 1))
-        if m_arg_board[rank - 1][file + 1].get_color() == "black":
-            moves.append((rank - 1, file + 1))
+        if rank > 0:
+            if isinstance(m_arg_board[rank - 1][file], WhiteSpace.WhiteSpace):
+                moves.append((rank - 1, file))
+            if rank == 6:
+                if isinstance(m_arg_board[rank - 2][file], WhiteSpace.WhiteSpace):
+                    moves.append((rank - 2, file))
+        if file - 1 >= 0:
+            if m_arg_board[rank - 1][file - 1].get_color() == "black":
+                moves.append((rank - 1, file - 1))
+        if file + 1 <= 7:
+            if m_arg_board[rank - 1][file + 1].get_color() == "black":
+                moves.append((rank - 1, file + 1))
     else:
-        for i in range(rank + 1, rank + 3):
-            if isinstance(m_arg_board[i][file], WhiteSpace.WhiteSpace):
-                moves.append((i, file))
-            else:
-                break
-        if m_arg_board[rank + 1][file - 1].get_color() == "white":
-            moves.append((rank + 1, file - 1))
-        if m_arg_board[rank + 1][file + 1].get_color() == "white":
-            moves.append((rank + 1, file + 1))
+        if rank < 7:
+            if isinstance(m_arg_board[rank + 1][file], WhiteSpace.WhiteSpace):
+                moves.append((rank + 1, file))
+            if rank == 1:
+                if isinstance(m_arg_board[rank + 2][file], WhiteSpace.WhiteSpace):
+                    moves.append((rank + 2, file))
+        if file - 1 >= 0:
+            if m_arg_board[rank + 1][file - 1].get_color() == "white":
+                moves.append((rank + 1, file - 1))
+        if file + 1 <= 7:
+            if m_arg_board[rank + 1][file + 1].get_color() == "white":
+                moves.append((rank + 1, file + 1))
 
     return moves
 
@@ -231,11 +237,3 @@ def legal_moves(piece, arg_board):
         return pawn_moves(piece.get_rank(), piece.get_file(), arg_board)
     else:
         return []
-
-
-def main():
-    pass
-
-
-if __name__ == "__main__":
-    main()

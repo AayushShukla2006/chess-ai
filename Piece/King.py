@@ -11,4 +11,8 @@ class King(Piece.Piece):
         elif self.color == "black":
             return "bK"
         else:
-            raise Exception("Invalid color")
+            raise error.InvalidColorError(defs.color_error)
+
+    def print_info(self):
+        super().print_info()
+        print("Type of the piece is: King")
