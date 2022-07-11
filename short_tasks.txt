@@ -1,14 +1,21 @@
 To develop:
-1. Piece highlighting on selection
-2. Implement a check function
-(Not important, but to fix the slight white lines on side of window)
+1. Get legal moves from pseudo-legal moves, by making all legal moves for every piece and checking if any piece lands on the King's square.
+2. When in check, only the king can be moved, or any piece can be moved to block the check.
+3. Concept of pinning.
+4. (Not important) Fix the thin white lines on border of window.
 
-Bug:
-1. Program crash on Pawn reaching end of board, Fix OutOfBounds for rank and file in moves.py
+Bugs:
 
 
 v0.2.0-alpha
 1. Move rules defined, capturing is now possible
+2. Piece highlighting on selection
+3. Implement a check function
+4. Sounds for every move
+Bug fixes:
+1. Program crash on Pawn reaching end of board, Fix OutOfBounds for rank and file in moves.py
+2. Legal moves getting wrong, now will work to make them return string.
+3. When king is captured, the program will work wrongly. (Fixed - Now it will throw a custom error)
 
 v0.1.0-alpha
 1. Board

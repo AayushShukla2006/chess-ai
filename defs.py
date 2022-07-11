@@ -1,5 +1,5 @@
 # initial_board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-initial_board = "4q3/8/8/8/8/8/8/4K3 w - - 0 1"
+initial_board = "4k3/8/8/8/8/8/8/3QK3 w KQkq - 0 1"
 
 WIDTH = HEIGHT = 650
 DIMENSION = 8
@@ -35,8 +35,11 @@ original_colors = [
 ]
 
 fen_error = "Invalid character in FEN string."
+invalid_fen_error = "Invalid FEN string."
 color_error = "Invalid color value. Must be 'white' or 'black' (case-sensitive) only." \
               "To fix - Check all 'color' arguments of pieces in board.fen_to_board() method, or if you've defined the board by yourself, check the 'color' argument entered."
+no_king_error = "No King was found in the FEN string. If not done by you, report to me at - oreus@duck.com"
+king_captured_error = "The King was captured. There must be a bug, please report to me at - oreus@duck.com with full explaination of the moves you made."
 
 
 def to_matrix(lst, number):
@@ -52,21 +55,17 @@ def index_to_pos(index):
 
 
 def get_move_id(arg_move):
-    move_id = 0
-    count = 0
+    m_id = ""
 
     for i in arg_move:
-        move_id += (i[0] * (10 ** (3 - count))) + (i[1] * (10 ** (2 - count)))
-        count += 2
+        m_id += str(i[0]) + str(i[1])
 
-    return move_id
+    return m_id
 
 
 def get_move_from_id(move_id):
-    count = 0
-    move_id = str(move_id)
-
-    if len(move_id) < 4:
-        move_id = "0" * (4 - len(move_id)) + move_id
-
     return [(int(move_id[0]), int(move_id[1])), (int(move_id[2]), int(move_id[3]))]
+
+
+def slice_int(integer, start, end):
+    return int(str(integer)[start:end])

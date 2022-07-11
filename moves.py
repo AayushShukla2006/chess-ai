@@ -1,3 +1,4 @@
+import defs
 from Piece import King, Queen, Bishop, Knight, Rook, Pawn, WhiteSpace
 
 
@@ -222,18 +223,40 @@ def king_moves(rank, file, m_arg_board):
     return moves
 
 
+def queen_moves(rank, file, m_arg_board):
+    return straight_moves(rank, file, m_arg_board) + diagonal_moves(rank, file, m_arg_board)
+
+
 def legal_moves(piece, arg_board):
     if isinstance(piece, King.King):
-        return king_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in king_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     elif isinstance(piece, Queen.Queen):
-        return diagonal_moves(piece.get_rank(), piece.get_file(), arg_board) + straight_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in queen_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     elif isinstance(piece, Bishop.Bishop):
-        return diagonal_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in diagonal_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     elif isinstance(piece, Knight.Knight):
-        return knight_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in knight_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     elif isinstance(piece, Rook.Rook):
-        return straight_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in straight_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     elif isinstance(piece, Pawn.Pawn):
-        return pawn_moves(piece.get_rank(), piece.get_file(), arg_board)
+        moves = []
+        for move in pawn_moves(piece.get_rank(), piece.get_file(), arg_board):
+            moves.append(defs.get_move_id([(piece.get_rank(), piece.get_file()), (move[0], move[1])]))
+        return moves
     else:
         return []

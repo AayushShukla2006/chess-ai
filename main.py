@@ -1,6 +1,7 @@
 import sys
 import pygame
 import board
+import defs
 import moves
 from defs import IMAGES, DIMENSION, SQ_SIZE, WIDTH, HEIGHT, MAX_FPS, colors, highlight_colors, board_colors, original_colors, legal_move_colors
 from Piece import WhiteSpace
@@ -89,22 +90,30 @@ def main():
                             board_colors[rank][file] = highlight_colors[0]
                         else:
                             board_colors[rank][file] = highlight_colors[1]
+                        # Highlight the legal moves of the selected piece.
                         if gs.board[rank][file].get_color() == gs.active_player():
                             for i in moves.legal_moves(gs.board[rank][file], gs.board):
-                                if (i[0] + i[1]) % 2 == 0:
-                                    board_colors[i[0]][i[1]] = legal_move_colors[0]
+                                moves_to_position = defs.get_move_from_id(i)
+                                target_rank = moves_to_position[1][0]
+                                target_file = moves_to_position[1][1]
+                                if (target_rank + target_file) % 2 == 0:
+                                    board_colors[target_rank][target_file] = legal_move_colors[0]
                                 else:
-                                    board_colors[i[0]][i[1]] = legal_move_colors[1]
+                                    board_colors[target_rank][target_file] = legal_move_colors[1]
 
                 else:
                     square_selected = (rank, file)
                     player_clicks.append(square_selected)
+                    # Highlight the legal moves of the selected piece.
                     if gs.board[rank][file].get_color() == gs.active_player():
                         for i in moves.legal_moves(gs.board[rank][file], gs.board):
-                            if (i[0] + i[1]) % 2 == 0:
-                                board_colors[i[0]][i[1]] = legal_move_colors[0]
+                            moves_to_position = defs.get_move_from_id(i)
+                            target_rank = moves_to_position[1][0]
+                            target_file = moves_to_position[1][1]
+                            if (target_rank + target_file) % 2 == 0:
+                                board_colors[target_rank][target_file] = legal_move_colors[0]
                             else:
-                                board_colors[i[0]][i[1]] = legal_move_colors[1]
+                                board_colors[target_rank][target_file] = legal_move_colors[1]
                     else:
                         reset_colors()
 
@@ -135,12 +144,16 @@ def main():
                                 board_colors[final_rank][final_file] = highlight_colors[0]
                             else:
                                 board_colors[final_rank][final_file] = highlight_colors[1]
+                            # Highlight the legal moves of the selected piece.
                             if gs.board[final_rank][final_file].get_color() == gs.active_player():
                                 for i in moves.legal_moves(gs.board[final_rank][final_file], gs.board):
-                                    if (i[0] + i[1]) % 2 == 0:
-                                        board_colors[i[0]][i[1]] = legal_move_colors[0]
+                                    moves_to_position = defs.get_move_from_id(i)
+                                    target_rank = moves_to_position[1][0]
+                                    target_file = moves_to_position[1][1]
+                                    if (target_rank + target_file) % 2 == 0:
+                                        board_colors[target_rank][target_file] = legal_move_colors[0]
                                     else:
-                                        board_colors[i[0]][i[1]] = legal_move_colors[1]
+                                        board_colors[target_rank][target_file] = legal_move_colors[1]
                             else:
                                 reset_colors()
                         else:

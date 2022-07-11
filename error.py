@@ -23,3 +23,25 @@ class InvalidColorError(Error):
 
     def __init__(self, message):
         self.message = message
+
+
+class NoKingError(Error):
+    """Exception raised for no king on the board.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+
+
+class KingCapturedError(Error):
+    """Exception raised when king captured.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message

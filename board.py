@@ -8,12 +8,13 @@ from Piece import King, Queen, Bishop, Knight, Rook, Pawn, WhiteSpace
 # This class contains the current game state and all the values required to keep it running.
 class GameState:
     def __init__(self):
+        self.white_to_move = False
+        self.move_check = False
         self.board = self.fen_to_board(defs.initial_board)
-        self.white_to_move = True
         self.move_log = []
         self.white_king_position = (7, 4)
         self.black_king_position = (0, 4)
-        print(self.all_possible_moves())
+        self.get_valid_moves()
         pygame.init()
 
     # This method converts the FEN string to a board of list data type using the 'to_matrix()' method.
@@ -26,6 +27,9 @@ class GameState:
             self.white_to_move = True
         else:
             self.white_to_move = False
+
+        if ('K' not in fen_list[0]) or ('k' not in fen_list[0]):
+            raise error.NoKingError(defs.no_king_error)
 
         for char in fen_list[0]:
             if char == '/':
@@ -65,6 +69,8 @@ class GameState:
                         raise error.InvalidFenError(defs.fen_error)
                 file += 1
 
+        if len(board) != 64:
+            raise error.InvalidFenError(defs.invalid_fen_error)
         return defs.to_matrix(board, 8)
 
     def make_move(self, move):
@@ -73,35 +79,40 @@ class GameState:
         elif (self.board[move.start_rank][move.start_file].color == "white" and not self.white_to_move) or (self.board[move.start_rank][move.start_file].color == "black" and self.white_to_move):  # If it's not your move, it will not be allowed.
             return False
         else:
-            if (move.end_rank, move.end_file) in moves.legal_moves(self.board[move.start_rank][move.start_file], self.board):  # If the move is legal, it will be executed.
+            if defs.get_move_id([(move.start_rank, move.start_file), (move.end_rank, move.end_file)]) in moves.legal_moves(self.board[move.start_rank][move.start_file], self.board):  # If the move is legal, it will be executed.
                 self.board[move.end_rank][move.end_file] = self.board[move.start_rank][move.start_file]
                 self.board[move.end_rank][move.end_file].set_rank(move.end_rank)
                 self.board[move.end_rank][move.end_file].set_file(move.end_file)
                 self.board[move.start_rank][move.start_file] = WhiteSpace.WhiteSpace(move.start_file, move.start_rank)
                 self.move_log.append(move)
-                if self.active_player() == "white":
-                    if self.in_check("black"):
-                        pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/check.wav"))
-                    else:
-                        if move.piece_captured.get_alpha() != "--":  # If you captured a piece, it will be executed with a capture sound.
-                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/capture.wav"))
-                        elif move.piece_captured.get_alpha() == "--":  # If you made a normal move, it will be executed with a normal sound.
-                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/normal.wav"))
-                elif self.active_player() == "black":
-                    if self.in_check("white"):
-                        pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/check.wav"))
-                    else:
-                        if move.piece_captured.get_alpha() != "--":
-                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/capture.wav"))
-                        elif move.piece_captured.get_alpha() == "--":
-                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/normal.wav"))
-                self.white_to_move = not self.white_to_move
+
+                if move.piece_captured.get_alpha() == 'wK' or move.piece_captured.get_alpha() == 'bK':
+                    raise error.KingCapturedError(defs.king_captured_error)
 
                 # If any of the kings were moved, update their positions.
                 if move.piece_moved.get_alpha() == "wK":
                     self.white_king_position = (move.end_rank, move.end_file)
                 elif move.piece_moved.get_alpha() == "bK":
                     self.black_king_position = (move.end_rank, move.end_file)
+
+                if not self.move_check:
+                    if self.active_player() == "white":
+                        if self.in_check("black"):
+                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/check.wav"))
+                        else:
+                            if move.piece_captured.get_alpha() != "--":  # If you captured a piece, it will be executed with a capture sound.
+                                pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/capture.wav"))
+                            elif move.piece_captured.get_alpha() == "--":  # If you made a normal move, it will be executed with a normal sound.
+                                pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/normal.wav"))
+                    elif self.active_player() == "black":
+                        if self.in_check("white"):
+                            pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/check.wav"))
+                        else:
+                            if move.piece_captured.get_alpha() != "--":
+                                pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/capture.wav"))
+                            elif move.piece_captured.get_alpha() == "--":
+                                pygame.mixer.Sound.play(pygame.mixer.Sound("sounds/normal.wav"))
+                self.white_to_move = not self.white_to_move
                 return True
             else:
                 return False
@@ -148,17 +159,39 @@ class GameState:
         else:
             return "black"
 
-    # def get_valid_moves(self):
-    #     valid_moves = self.all_possible_moves()
-    #
-    #     for i in range(len(valid_moves) - 1, -1, -1):
-    #         self.make_move(valid_moves[i][0])
+    @staticmethod
+    def opposite_color(color):
+        if color == "white":
+            return "black"
+        else:
+            return "white"
+
+    def get_valid_moves(self):
+        valid_moves = self.all_possible_moves()
+
+        for i in self.board:
+            for j in i:
+                if j.get_alpha() != "--":
+                    move = moves.legal_moves(j, self.board)
+                    for k in move:
+                        move_to_make_temp = defs.get_move_from_id(k)
+                        move_to_make = Move((move_to_make_temp[0][0], move_to_make_temp[0][1]), (move_to_make_temp[1][0], move_to_make_temp[1][1]), self.board)
+                        self.make_move(move_to_make)
+                        if self.in_check(self.opposite_color(self.active_player())):
+                            print("Invalid move: " + str(move_to_make_temp))
+                        self.undo_move()
+
+        return valid_moves
 
     def is_square_under_attack(self, rank, file):
-        for row in self.all_possible_moves():
-            for moves_of_piece in row:
-                if (rank, file) in moves_of_piece:
-                    return True
+        for row in self.board:
+            for piece in row:
+                if piece.get_alpha() != "--":
+                    if piece.get_color() != self.board[rank][file].get_color():
+                        temp = str(rank) + str(file)
+                        for k in moves.legal_moves(piece, self.board):
+                            if temp == k[2:]:
+                                return True
         return False
 
 
